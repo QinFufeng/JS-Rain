@@ -16,14 +16,102 @@
 			}
 		</style>
 	</head>
-	<body>
+	<body id="canvas_box">
+		<canvas class="rain"></canvas>
 		<script type="text/javascript">
+		
 			var oCanvas=document.querySelector(".rain");
 			var w,h;
 			var aRain=[];
 			~~function(){
+				window.onresize=arguments.callee;
+				w=window.innerWidth;
+				h=window.innerHeight;
+				//w=500;
+				//h=300;
+				//alert("asdad"+h);
+				oCanvas.width=w;
 				
+				oCanvas.height=h;
+				
+			}();
+            w=800;
+            h=500;
+			//oCanvas.width=w;
+			//oCanvas.height=h;
+			var canCon=oCanvas.getContext("2d");
+			
+			function random(min,max){
+				return Math.random()*(max-min)+min;
 			}
+			function Rain(){};
+			Rain.prototype={
+				init:function(){
+					this.x=random(0,w);
+					this.y=0;
+					this.w=random(1.5,2.5);
+					this.h=random(8,12);
+					this.color="#00BFFF";
+					this.vy=random(1,2);
+					this.vr=random(0.5,1.5);
+					this.a=1;
+					this.va=0.96;
+					this.ground=random(0.8*h,0.9*h);
+					this.r=this.w/2;
+					
+				},
+				draw:function(){
+					if(this.y<this.ground){
+						canCon.beginPath();
+						canCon.fillStyle=this.color;
+						canCon.fillRect(this.x,this.y,this.w,this.h);
+						
+					}else{
+						canCon.beginPath();
+						canCon.strokeStyle="rgba(255,255,255,"+this.a+")";
+						canCon.arc(this.x,this.y,this.r,0,Math.PI*2);
+						canCon.stroke();
+					}
+				},
+				move:function(){
+					if(this.y<this.ground)
+					{
+						this.y+=this.vy;
+					}else{
+						if(this.r<100){
+							this.r+=this.vr;
+							if(this.r>50){
+								this.a+=this.va;
+							}
+						}
+						else{
+							this.init();
+							
+						}
+					}
+					this.draw();
+				}
+			}
+			function createRain(num){
+				for(var i=0;i<num;i++)
+				{
+					setTimeout(function(){
+						var rain=new Rain();
+						rain.init();
+						rain.draw();
+						aRain.push(rain);
+					},200*i);
+				}
+			}
+			createRain(66);
+			setInterval(function(){
+				canCon.fillStyle="rgba(0,0,0,0.03)";
+				canCon.fillRect(0,0,w,h);
+				for(var i=0;i<aRain.length;i++){
+					aRain[i].move();
+				}
+			},1000/10)/**/
 		</script>
+       
 	</body>
 </html>
